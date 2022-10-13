@@ -151,5 +151,7 @@ int main(int argc, char **argv){
                 printf("error!");        
         }
         printNRelease(head, flag);   
-        closedir(dirp);                
+        closedir(dirp);      
+	
+	return EXIT_SUCCESS;
 }
