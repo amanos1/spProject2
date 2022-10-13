@@ -131,6 +131,11 @@ int main(int argc, char **argv){
         
 	fileNames *head = NULL;
         struct dirent *dir;
+	
+	if((dir_ptr = opendir(dirname)) == NULL){
+		fprintf(stderr, "ls:cannot open %s\n", dirname);
+	}
+	
         DIR* dirp = opendir(".");
         int errno = 0;
         while((dir = readdir(dirp)) != NULL){
