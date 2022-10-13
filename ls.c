@@ -132,15 +132,16 @@ int main(int argc, char **argv){
 	fileNames *head = NULL;
         struct dirent *dir;
 	
-	if((dir_ptr = opendir(dirname)) == NULL){
-		fprintf(stderr, "ls:cannot open %s\n", dirname);
+	DIR *dirp;
+	if((dirp = opendir('.')) == NULL){
+		fprintf(stderr, "ls:cannot open current directory\n");
 	}
 	
-        DIR* dirp = opendir(".");
+        dirp = opendir(".");
         int errno = 0;
         while((dir = readdir(dirp)) != NULL){
                 //process dir
-                if(strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0) {
+                if(strcmp(dir->d_name, ".") == 0 || strcmp(dir->d_name, "..") == 0 || dir->d_name[0] == '.') {
 			continue;
 		}
                 fileNames *newNode = createNode(dir->d_name);
