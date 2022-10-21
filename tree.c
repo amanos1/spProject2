@@ -12,13 +12,14 @@ typedef struct fileNames{
 
 fileNames* createNode(char *wordPntr, int howDeep){
 	fileNames *temp = malloc(sizeof(fileNames));
-	temp->word = wordPntr;
+	temp->word = malloc(strlen(wordPntr) + 1);
+	strcpy(temp->word, wordPntr);
 	temp->next = NULL;
 	temp->layers = howDeep;
 	return temp;
 }
 
-void addNode(fileNames **head,fileNames *toAdd) {
+void addNode(fileNames **head, fileNames *toAdd) {
 	if(*head == NULL) {
 		*head = toAdd;
 		return;
@@ -28,8 +29,7 @@ void addNode(fileNames **head,fileNames *toAdd) {
 		return;
 	} else {
 		fileNames *current = *head;
-		//printf("%i\n", current->next == NULL);
-		while(current->next != NULL /*&& strcasecmp(current->next->word, toAdd->word) <= 0*/) {
+		while(current->next != NULL && strcasecmp(current->next->word, toAdd->word) <= 0) {
 			current = current->next;
 		}
 		toAdd->next = current->next;
@@ -38,18 +38,33 @@ void addNode(fileNames **head,fileNames *toAdd) {
 	}
 }
 
-void printNRelease(fileNames *head){
-	while(head != NULL){
-		for(int i = 0; i < head->layers; i++) printf("  ");
-		printf("- %s\n", head->word);
-		fileNames *temp = head;
-		head = head->next;
-		free(temp);
+void addChild(fileNames *parent, fileNames *toAdd) {
+	if(parent->next == NULL) {
+		parent->next = toAdd;
+		return;
 	}
+	fileNames *current = parent;
+	while((current->next != NULL || current->next->layers == current->layers) && strcasecmp(current->next->word, toAdd->word) <= 0) {
+		printf("%s\n", current->word);
+		current = current->next;
+	}
+	toAdd->next = current->next;
+	current->next = toAdd;
+	return;
 }
 
-void printIt(DIR *shiit, int layer, char *stuff, fileNames *head) {
-	struct dirent *dir;
+void printNRelease(fileNames *head){
+	if(head == NULL) return;
+	for(int i = 0; i < head->layers; i++) printf("  ");
+	printf("- %s\n", head->word);
+	printNRelease(head->next);
+	free(head->word);
+	free(head);
+}
+
+fileNames *printIt(DIR *shiit, int layer, char *stuff, fileNames *prevHead, fileNames *parent) {
+	struct dirent *dir = readdir(shiit);
+	fileNames *head = prevHead;
 	int errno = 0;
 	while((dir = readdir(shiit)) != NULL) {
 		//process dir
@@ -57,7 +72,8 @@ void printIt(DIR *shiit, int layer, char *stuff, fileNames *head) {
 			continue;
 		}
 		fileNames *newNode = createNode(dir->d_name, layer);
-		addNode(&head, newNode);
+		if(parent != NULL) addChild(parent, newNode);
+		else addNode(&head, newNode);
 
 		int oldLen = strlen(stuff);
 		int newLen = oldLen + strlen(dir->d_name) + 1;
@@ -68,7 +84,7 @@ void printIt(DIR *shiit, int layer, char *stuff, fileNames *head) {
 
 		DIR *nextVictim = opendir(folder);
 		if(nextVictim != NULL){
-			printIt(nextVictim, layer + 1, folder, head);
+			printIt(nextVictim, layer + 1, folder, head, newNode);
 		}
 		closedir(nextVictim);
 		free(folder);
@@ -76,18 +92,17 @@ void printIt(DIR *shiit, int layer, char *stuff, fileNames *head) {
 	if(errno){
 		printf("error!");
 	}
+	return head;
 }
 
 int main(int argc, char *argv[]) {
-	fileNames *head = NULL;
-
 	DIR *dirp = opendir(".");
 	if(dirp == NULL){
 		fprintf(stderr, "ls:cannot open current directory\n");
 	}
 
 	printf(".\n");
-	printIt(dirp, 0, "", head);
+	fileNames *head = printIt(dirp, 0, "", NULL, NULL);
 	printNRelease(head);
 
 	closedir(dirp);

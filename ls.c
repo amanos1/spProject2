@@ -132,12 +132,11 @@ int main(int argc, char **argv){
 	fileNames *head = NULL;
         struct dirent *dir;
 	
-	DIR *dirp;
-	if((dirp = opendir('.')) == NULL){
+	DIR *dirp = opendir(".");;
+	if(dirp == NULL){
 		fprintf(stderr, "ls:cannot open current directory\n");
 	}
 	
-        dirp = opendir(".");
         int errno = 0;
         while((dir = readdir(dirp)) != NULL){
                 //process dir
