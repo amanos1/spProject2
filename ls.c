@@ -93,7 +93,7 @@ void printNRelease(fileNames *head, int longFlag){
 			char date[100];
 			struct tm *dm;
 			dm = localtime(&stats.st_mtime);
-			strftime(date, sizeof(date), "%a %d %H:%M", dm);	
+			strftime(date, sizeof(date), "%b %d %H:%M", dm);	
 			
 			//print all information
 			if(uidFlag == 0 && gidFlag == 0){
