@@ -20,6 +20,7 @@ fileNames* createNode(char *wordPntr, int howDeep){
 }
 
 void addNode(fileNames **head, fileNames *toAdd) {
+	//printf("%s\n", toAdd->word);
 	if(*head == NULL) {
 		*head = toAdd;
 		return;
@@ -29,7 +30,7 @@ void addNode(fileNames **head, fileNames *toAdd) {
 		return;
 	} else {
 		fileNames *current = *head;
-		while(current->next != NULL && strcasecmp(current->next->word, toAdd->word) <= 0) {
+		while(current->next != NULL && strcasecmp(current->next->word, toAdd->word) <= 0 && current->layers != toAdd->layers) {
 			current = current->next;
 		}
 		toAdd->next = current->next;
@@ -44,8 +45,7 @@ void addChild(fileNames *parent, fileNames *toAdd) {
 		return;
 	}
 	fileNames *current = parent;
-	while((current->next != NULL || current->next->layers == current->layers) && strcasecmp(current->next->word, toAdd->word) <= 0) {
-		printf("%s\n", current->word);
+	while(current->next != NULL && current->next->layers == toAdd->layers && strcasecmp(current->next->word, toAdd->word) <= 0) {
 		current = current->next;
 	}
 	toAdd->next = current->next;
