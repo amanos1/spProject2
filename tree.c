@@ -30,7 +30,7 @@ void addNode(fileNames **head, fileNames *toAdd) {
 		return;
 	} else {
 		fileNames *current = *head;
-		while(current->next != NULL && strcasecmp(current->next->word, toAdd->word) <= 0 && current->layers != toAdd->layers) {
+		while(current->next != NULL && (strcasecmp(current->next->word, toAdd->word) <= 0 || current->next->layers != toAdd->layers)) {
 			current = current->next;
 		}
 		toAdd->next = current->next;
